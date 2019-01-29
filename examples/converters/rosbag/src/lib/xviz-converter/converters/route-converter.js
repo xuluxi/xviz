@@ -26,7 +26,7 @@ export default class RouteConverter extends Converter {
         .reject(_.isEmpty)
         .flatten()
         .slice(0, -2) // Our last point seems to return to origin, so chop it off
-        .map((p) => [p.x, p.y, 0])
+        .map(p => [p.x, p.y, 0])
         .value();
 
       if (!_.isEmpty(points)) {

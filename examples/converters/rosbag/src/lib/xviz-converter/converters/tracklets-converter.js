@@ -9,11 +9,11 @@ export default class TrackletsConverter extends Converter {
   }
 
   _shapeBottomToPolygon(shapeBottom) {
-    if (shapeBottom.points) { // Older bags have this format
+    if (shapeBottom.points) {
+      // Older bags have this format
       return shapeBottom.points.map(p => [p.x, p.y, 0]);
-    }
-    else if (shapeBottom.data) {
-      return _.map(_.chunk(shapeBottom.data, 3), (p) => [p[0], p[1], 0] /* zero out z */);
+    } else if (shapeBottom.data) {
+      return _.map(_.chunk(shapeBottom.data, 3), p => [p[0], p[1], 0] /* zero out z */);
     }
 
     return null;
@@ -35,8 +35,7 @@ export default class TrackletsConverter extends Converter {
             .polygon(polygon)
             .classes([this._getClass(track)])
             .id(track.track_id);
-        }
-        else {
+        } else {
           console.warn('Unable to parse track.shape_bottom'); // eslint-disable-line
         }
       }
@@ -80,17 +79,17 @@ export default class TrackletsConverter extends Converter {
 
   _getClass(track) {
     // Order has significance
-    const CLASSES = [
-      'Car',
-      'Pedestrian'
-    ];
+    const CLASSES = ['Car', 'Pedestrian'];
 
-    const {index} = track.class_probabilities.reduce((currentMax, probability, i) => {
-      if (probability > currentMax.probability) {
-        return {probability, index: i};
-      }
-      return currentMax;
-    }, {index: -1, probability: -1});
+    const {index} = track.class_probabilities.reduce(
+      (currentMax, probability, i) => {
+        if (probability > currentMax.probability) {
+          return {probability, index: i};
+        }
+        return currentMax;
+      },
+      {index: -1, probability: -1}
+    );
 
     return CLASSES[index];
   }

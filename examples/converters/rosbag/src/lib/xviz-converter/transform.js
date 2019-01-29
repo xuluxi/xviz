@@ -1,21 +1,22 @@
 import {XVIZWriter} from '@xviz/builder';
 import * as Topics from './topics';
 import Bag from './lib/bag';
+import {TimeUtil} from 'rosbag';
+
 import {createDir, deleteDirRecursive} from './lib/util';
 import FrameBuilder from './frame-builder';
 
 export default async function transform(args) {
   const profileStart = Date.now();
 
-  const {bag: bagPath, outputDir, disableStreams, frameLimit=Number.MAX_VALUE} = args;
+  const {bag: bagPath, outputDir, disableStreams, frameLimit = Number.MAX_VALUE} = args;
 
   console.log(`Converting data at ${bagPath}`); // eslint-disable-line
   console.log(`Saving to ${outputDir}`); // eslint-disable-line
 
   try {
     deleteDirRecursive(outputDir);
-  }
-  catch (err) {
+  } catch (err) {
     // ignore
   }
   createDir(outputDir);
@@ -41,7 +42,7 @@ export default async function transform(args) {
   await bag.readFrames(async frame => {
     try {
       if (frameNum < frameLimit) {
-        endTime = frame.keyTopic.timestamp.toDate();
+        endTime = TimeUtil.toDate(frame.keyTopic.timestamp);
         if (!startTime) {
           startTime = endTime;
         }
@@ -50,8 +51,7 @@ export default async function transform(args) {
         xvizWriter.writeFrame(outputDir, frameNum, xvizFrame);
         frameNum++;
       }
-    }
-    catch (err) {
+    } catch (err) {
       console.error(err);
     }
   });
@@ -62,11 +62,11 @@ export default async function transform(args) {
 
   // Write metadata file
   const xb = frameBuilder.getXVIZMetadataBuilder();
-  xb.startTime(startTime.getTime()).endTime(endTime.getTime());
+  xb.startTime(startTime.getTime() / 1e3).endTime(endTime.getTime() / 1e3);
   xvizWriter.writeMetadata(outputDir, xb.getMetadata());
 
   xvizWriter.writeFrameIndex(outputDir);
 
   const profileEnd = Date.now();
-  console.log(`Generate ${frameNum} frames in ${(profileEnd-profileStart)/1000}s`); // eslint-disable-line
-};
+  console.log(`Generate ${frameNum} frames in ${(profileEnd - profileStart) / 1000}s`); // eslint-disable-line
+}

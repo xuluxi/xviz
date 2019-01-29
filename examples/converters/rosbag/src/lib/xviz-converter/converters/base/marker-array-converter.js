@@ -13,10 +13,10 @@ const NAMESPACE_SEPARATOR = '/';
  */
 export default class MarkerArrayConverter extends Converter {
   constructor({
-    topic, /* Topic to convert */
-    xvizNamespace, /* The top-level xviz namespace to use for this set of marker streams */
+    topic /* Topic to convert */,
+    xvizNamespace /* The top-level xviz namespace to use for this set of marker streams */,
     acceptMarker /* Function to filter the markers to use (if not defined, uses all markers) */
-  }={}) {
+  } = {}) {
     super();
 
     this.topic = topic;
@@ -88,7 +88,7 @@ export default class MarkerArrayConverter extends Converter {
       '9': this._writeText
     };
 
-    _.forOwn(this.markersMap, (marker) => {
+    _.forOwn(this.markersMap, marker => {
       const writer = WRITERS[marker.type];
       if (writer) {
         writer(marker, xvizBuilder);
@@ -100,9 +100,7 @@ export default class MarkerArrayConverter extends Converter {
     const points = this._mapPoints(marker.points, marker.pose);
     // Add a perpendicular-ish point to form a makeshift arrow
     points.push(
-      new Vector3(...points[1])
-        .rotateZ({radians: Math.PI / 24, origin: points[0]})
-        .toArray()
+      new Vector3(...points[1]).rotateZ({radians: Math.PI / 24, origin: points[0]}).toArray()
     );
 
     xvizBuilder
@@ -114,9 +112,7 @@ export default class MarkerArrayConverter extends Converter {
 
   _writeSphere = (marker, xvizBuilder) => {
     const RADIUS = marker.scale.x / 2;
-    const points = this._mapPoints([
-      {x: 0, y: 0, z: 0}
-    ], marker.pose);
+    const points = this._mapPoints([{x: 0, y: 0, z: 0}], marker.pose);
 
     xvizBuilder
       .primitive(this.CIRCLE_STREAM)
@@ -145,9 +141,12 @@ export default class MarkerArrayConverter extends Converter {
   };
 
   _writeText = (marker, xvizBuilder) => {
-    const points = this._mapPoints([
-      {x: 0, y: 0, z: 2} // z=2 to float above
-    ], marker.pose);
+    const points = this._mapPoints(
+      [
+        {x: 0, y: 0, z: 2} // z=2 to float above
+      ],
+      marker.pose
+    );
 
     xvizBuilder
       .primitive(this.TEXT_STREAM)
@@ -158,7 +157,7 @@ export default class MarkerArrayConverter extends Converter {
   _toColor(marker) {
     const color = marker.color || (marker.colors || [])[0];
     if (color) {
-      return [color.r, color.g, color.b, color.a].map((v) => Math.round(v * 255));
+      return [color.r, color.g, color.b, color.a].map(v => Math.round(v * 255));
     }
 
     return [128, 128, 128, 255]; // default color
@@ -167,13 +166,13 @@ export default class MarkerArrayConverter extends Converter {
   _mapPoints(points, pose) {
     const origin = new Vector3([pose.position.x, pose.position.y, 0]);
 
-    return points.map((p) => {
+    return points.map(p => {
       p = [p.x, p.y, 0];
       return origin.add(p).toArray();
     });
   }
 
-  _processMarker = (marker) => {
+  _processMarker = marker => {
     const markerId = this._getMarkerId(marker);
 
     if (marker.action === ACTION_ADD) {
@@ -183,19 +182,16 @@ export default class MarkerArrayConverter extends Converter {
       if (this.acceptMarker(marker)) {
         this.markersMap[markerId] = marker;
       }
-    }
-    else if (marker.action === ACTION_DELETE) {
+    } else if (marker.action === ACTION_DELETE) {
       if (!marker.ns) {
         this.markersMap = {};
-      }
-      else {
+      } else {
         this.markersMap = _.pickBy(this.markersMap, (value, key) => {
           // Using `startsWith` to support removing entire namespaces when an id isn't specified
           return !key.startsWith(markerId);
         });
       }
-    }
-    else if (marker.action === ACTION_DELETE_ALL) {
+    } else if (marker.action === ACTION_DELETE_ALL) {
       this.markersMap = {};
     }
   };

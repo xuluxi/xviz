@@ -2,8 +2,7 @@
  * Abstract Converter class that all converts must implement
  */
 export default class Converter {
-  constructor() {
-  }
+  constructor() {}
 
   convertFrame(frame, xvizBuilder) {
     throw new Error('Implement me');

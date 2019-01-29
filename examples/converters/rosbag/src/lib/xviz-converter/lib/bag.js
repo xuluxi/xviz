@@ -40,9 +40,8 @@ export default class Bag {
             altitude: parseFloat(configuration['map_alt'])
           };
         }
-      }
-      else if (topic === TF) {
-        message.transforms.forEach((t) => {
+      } else if (topic === TF) {
+        message.transforms.forEach(t => {
           frameIdToPoseMap[t.child_frame_id] = {
             ...t.transform.translation,
             ...quaternionToEuler(t.transform.rotation)
@@ -51,7 +50,7 @@ export default class Bag {
       }
     });
 
-    console.log('Calc metadata', (Date.now()-start)/1000);
+    console.log('Calc metadata', (Date.now() - start) / 1000);
 
     return {
       origin,
@@ -71,7 +70,7 @@ export default class Bag {
       }
     }
 
-    await bag.readMessages({topics: this.topics}, async (result) => {
+    await bag.readMessages({topics: this.topics}, async result => {
       // rosbag.js reuses the data buffer for subsequent messages, so we need to make a copy
       if (result.message.data) {
         result.message.data = Buffer.from(result.message.data);

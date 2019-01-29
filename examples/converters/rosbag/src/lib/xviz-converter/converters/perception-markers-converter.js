@@ -6,7 +6,7 @@ export default class PerceptionMarkersConverter extends MarkerArrayConverter {
     super({
       topic: TRACKS_MARKERS,
       xvizNamespace,
-      acceptMarker: (marker) => ['velocity_arrow'].includes(marker.ns)
+      acceptMarker: marker => ['velocity_arrow'].includes(marker.ns)
     });
   }
 }

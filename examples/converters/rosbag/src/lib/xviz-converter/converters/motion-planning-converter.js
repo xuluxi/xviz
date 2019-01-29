@@ -20,10 +20,10 @@ export default class MotionPlanningConverter extends Converter {
     for (const {message} of planMessages) {
       const {poses} = message;
       const points = _.chain(poses)
-        .map((p) => _.get(p, 'pose.position'))
+        .map(p => _.get(p, 'pose.position'))
         .reject(_.isEmpty)
         .flatten()
-        .map((p) => [p.x, p.y, 0])
+        .map(p => [p.x, p.y, 0])
         .value();
 
       if (!_.isEmpty(points)) {

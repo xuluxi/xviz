@@ -3,9 +3,10 @@
  *
  * Usage: npx babel-node convert-cli ~/bags/input.bag ~/output
  */
-import 'babel-polyfill';
+require('@babel/register');
+require('babel-polyfill');
 
-import {convert} from './lib/xviz-converter';
+const convert = require('./lib/xviz-converter').convert;
 
 convert({
   bag: process.argv[2],

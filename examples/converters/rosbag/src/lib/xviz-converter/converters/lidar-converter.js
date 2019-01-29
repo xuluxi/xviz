@@ -19,10 +19,10 @@ function downSamplePoints(points, maxPointsCount) {
 
   const sampleRate = maxPointsCount / pointsCount;
   const ret = [];
-  for (let i = 0; i < points.length/chunkSize; i++) {
+  for (let i = 0; i < points.length / chunkSize; i++) {
     if (Math.random() < sampleRate) {
       for (let j = 0; j < chunkSize; j++) {
-        ret.push(points[i*chunkSize + j]);
+        ret.push(points[i * chunkSize + j]);
       }
     }
   }
@@ -61,13 +61,15 @@ export default class LidarConverter extends Converter {
 
       xvizBuilder
         .primitive(this.LIDAR_POINTS)
-        .points(downSamplePoints(positions, MAX_POINTS))
+        // .points(downSamplePoints(positions, MAX_POINTS))
+        .points(positions)
         .style({fill_color: color});
     }
   }
 
   getMetadata(xvizMetaBuilder, frameIdToPoseMap) {
-    const streamMetadata = xvizMetaBuilder.stream(this.LIDAR_POINTS)
+    const streamMetadata = xvizMetaBuilder
+      .stream(this.LIDAR_POINTS)
       .category('primitive')
       .type('point')
       .streamStyle({
@@ -78,7 +80,9 @@ export default class LidarConverter extends Converter {
     const pose = (frameIdToPoseMap || {}).velodyne;
     if (pose) {
       console.log('pose', pose);
-      streamMetadata.pose(_.pick(pose, ['x', 'y', 'z']), _.pick(pose, ['roll', 'pitch', 'yaw']));
+      streamMetadata
+        .pose(_.pick(pose, ['x', 'y', 'z']), _.pick(pose, ['pitch', 'roll', 'yaw']))
+        .coordinate('VEHICLE_RELATIVE');
     }
   }
 }

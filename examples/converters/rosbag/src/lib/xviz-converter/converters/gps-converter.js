@@ -1,5 +1,6 @@
 import {quaternionToEuler} from '../lib/util';
 import Converter from './base/converter';
+import {TimeUtil} from 'rosbag';
 
 export default class GPSConverter extends Converter {
   constructor(xvizNamespace, origin) {
@@ -28,7 +29,7 @@ export default class GPSConverter extends Converter {
       .mapOrigin(this.origin.longitude, this.origin.latitude, this.origin.altitude)
       .position(position.x, position.y, 0)
       .orientation(rotation.roll, rotation.pitch, rotation.yaw)
-      .timestamp(timestamp.toDate().getTime());
+      .timestamp(TimeUtil.toDate(timestamp).getTime() / 1e3);
   }
 
   _buildTrajectory(frame, xvizBuilder) {

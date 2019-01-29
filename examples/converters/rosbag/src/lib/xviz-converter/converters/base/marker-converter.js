@@ -12,7 +12,7 @@ export default class MarkerConverter extends MarkerArrayConverter {
   convertFrame(frame, xvizBuilder) {
     const messages = frame[this.topic];
     if (messages) {
-      const markers = _.map(messages, 'message')
+      const markers = _.map(messages, 'message');
       markers.forEach(this._processMarker);
     }
 
