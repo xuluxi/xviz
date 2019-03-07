@@ -1,5 +1,5 @@
 - Start Date: 2019-03-07
-- RFC PR: [#396](https://github.com/uber/xviz/pull/396)
+- RFC PR: [#403](https://github.com/uber/xviz/pull/403)
 - XVIZ Issue: [#64](https://github.com/uber/xviz/issues/64)
 
 # Summary
