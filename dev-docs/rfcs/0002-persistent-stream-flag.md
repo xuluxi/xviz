@@ -50,7 +50,7 @@ current datum.
  - LOD considerations
  - Dynamic data management across front end and backend
 
-# Considerations
+# Alternatives
 
 The persistent flag is believe to be the simplest addition to enable session long data. Below are other
 options that have been considered and why they where not part of the proposal at this time.
