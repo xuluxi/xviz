@@ -15,8 +15,10 @@
 /* eslint no-console: ["error", { allow: ["log"] }] */
 /* eslint-env node, browser */
 
+const { StringDecoder } = require('string_decoder');
 import {isEnvelope, unpackEnvelope, parseBinaryXVIZ, isBinaryXVIZ} from '@xviz/parser';
 
+const decoder = new StringDecoder('utf8');
 /**
  * Using the provided W3CWebSocket client, send the optional start
  * message de-envelope the messages and push the results through the
@@ -71,12 +73,21 @@ export class WebSocketInterface {
 
   onMessage(message) {
     if (typeof message.data !== 'string') {
+      // TODO: replace with XVIZData object
+      console.log(message.data instanceof ArrayBuffer);
+      console.log(message.data.byteLength);
       if (isBinaryXVIZ(message.data)) {
         // Convert from binary to JSON object
         const parsed = parseBinaryXVIZ(message.data);
         this.processMessage(parsed);
-      }
+      } else if (message.data instanceof ArrayBuffer) {
+        const buffer = Buffer.from(message.data);
+        const json_string = decoder.write(buffer);
+        const parsed = JSON.parse(json_string);
+        this.processMessage(parsed);
+      };
     } else {
+      console.log(message.data.length);
       const parsed = JSON.parse(message.data);
       this.processMessage(parsed);
     }
@@ -85,7 +96,6 @@ export class WebSocketInterface {
   processMessage(parsed) {
     if (isEnvelope(parsed)) {
       const unpacked = unpackEnvelope(parsed);
-
       if (unpacked.namespace === 'xviz') {
         this.callMiddleware(unpacked.type, unpacked.data);
       } else if (!this.unknownMessageTypes.has(parsed.type)) {

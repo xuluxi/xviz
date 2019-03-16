@@ -12,73 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {writeBinaryXVIZtoFile} from './xviz-binary-writer';
 import {xvizConvertJson} from './xviz-json-encoder.js';
-import {DracoEncoder, DracoDecoder} from '@loaders.gl/draco';
 
 // 0-frame is an index file for timestamp metadata
 // 1-frame is the metadata file for the log
 // 2-frame is where the actual XVIZ updates begin
 const frameName = index => `${index + 2}-frame`;
 
-/**
- * Class to abstract away file IO
- */
-class FileSink {
-  constructor() {
-    this.fs = module.require('fs');
-    this.path = module.require('path');
-  }
-
-  writeSync(scope, name, data) {
-    const xvizMetadataFilename = this.path.join(scope, name);
-    const options = {
-      flag: 'w'
-    };
-    this.fs.writeFileSync(xvizMetadataFilename, data, options);
-  }
-}
-
-export default class XVIZWriter {
-  constructor(options = {}) {
+export class XVIZJSONWriter {
+  constructor(sink, options = {}) {
     const {
-      dataSink = new FileSink(),
       envelope = true,
-      binary = true,
-      json = false,
-      draco = false
+      precision = 10
     } = options;
-    this.sink = dataSink;
+    this.sink = sink;
     this.frameTimings = {
       frames: new Map()
     };
     this.wroteFrameIndex = null;
-    this.options = {envelope, binary, json, draco};
+    this.options = {envelope, precision};
   }
 
   // xvizMetadata is the object returned
   // from a Builder.
-  writeMetadata(xvizDirectory, xvizMetadata) {
+  writeMetadata(xvizMetadata) {
     this._saveTimestamp(xvizMetadata);
 
     if (this.options.envelope) {
       xvizMetadata = {type: 'xviz/metadata', data: xvizMetadata};
     }
 
-    if (this.options.binary) {
-      const options = {
-        flattenArrays: false
-      };
-
-      writeBinaryXVIZtoFile(this.sink, xvizDirectory, '1-frame', xvizMetadata, options);
-    }
-
-    if (this.options.json) {
-      this.sink.writeSync(xvizDirectory, '1-frame.json', JSON.stringify(xvizMetadata));
-    }
+    this.sink.writeSync('1-frame.json', JSON.stringify(xvizMetadata));
   }
 
-  writeFrame(xvizDirectory, frameIndex, xvizFrame) {
+  writeFrame(frameIndex, xvizFrame) {
     if (this.wroteFrameIndex !== null) {
       throw new Error(
         `writeFrame() was called after writeFrameIndex().  The index was written with last frame of ${frameName(
@@ -93,39 +60,23 @@ export default class XVIZWriter {
       xvizFrame = {type: 'xviz/state_update', data: xvizFrame};
     }
 
-    if (this.options.binary) {
-      const options = {
-        flattenArrays: false
-      };
-
-      if (this.options.draco) {
-        options.DracoEncoder = DracoEncoder;
-        options.DracoDecoder = DracoDecoder;
+    // Limit precision to save space
+    const numberRounder = (k, value) => {
+      if (typeof value === 'number') {
+        return Number(value.toFixed(this.options.precision));
       }
 
-      writeBinaryXVIZtoFile(this.sink, xvizDirectory, frameName(frameIndex), xvizFrame, options);
-    }
+      return value;
+    };
 
-    if (this.options.json) {
-      // Limit precision to save space
-      const numberRounder = (k, value) => {
-        if (typeof value === 'number') {
-          return Number(value.toFixed(10));
-        }
-
-        return value;
-      };
-
-      const jsonXVIZFrame = xvizConvertJson(xvizFrame);
-      this.sink.writeSync(
-        xvizDirectory,
-        `${frameName(frameIndex)}.json`,
-        JSON.stringify(jsonXVIZFrame, numberRounder)
-      );
-    }
+    const jsonXVIZFrame = xvizConvertJson(xvizFrame);
+    this.sink.writeSync(
+      `${frameName(frameIndex)}.json`,
+      JSON.stringify(jsonXVIZFrame, numberRounder)
+    );
   }
 
-  writeFrameIndex(xvizDirectory) {
+  writeFrameIndex() {
     const {startTime, endTime, frames} = this.frameTimings;
     const frameTimings = {};
 
@@ -155,7 +106,7 @@ export default class XVIZWriter {
     });
     frameTimings.timing = timing;
 
-    this.sink.writeSync(xvizDirectory, '0-frame.json', JSON.stringify(frameTimings));
+    this.sink.writeSync('0-frame.json', JSON.stringify(frameTimings));
     this.wroteFrameIndex = timing.length;
   }
 

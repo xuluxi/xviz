@@ -1,0 +1,95 @@
+async await issues
+  - waiting when you don't need to
+    - could use promise.all
+    - or save promise and awaith later
+      const a1 = someAsync1()
+      const a2 = someAsync2()
+      await a1
+      await a2
+      ...
+
+- test case for format conversion
+- finish @xviz/io reader
+  - test cases here too
+
+  datasource factory
+  XVIZDataSource vs DataSource
+    provides XVIZ data
+    data source is ?
+    really data source is file, memory, 
+    writes has
+      writeSync(name/data) with root
+    reader has ?
+      readSync(name)
+      
+  makeXXXDataSource() obj|null
+    root, path, params
+    
+- datasource
+  preload
+    ? how to know what that means if
+      hz is a parameter?
+      not everything is a fixed frame
+    ? needs a way to specifc 
+      min/max frame
+      min/max time
+
+- XVIZData
+  # takes object|string|arraybuffer|buffer
+  # and states "dataFormat" w/o full parsing
+    buffer
+    message
+    hasMessage()
+    dataFormat()
+  ? can we get actual message/type
+    w/o parsing?  need some parsing for GLB I believe
+    ... no cheap way to really do this
+    ... but we can poke at the data
+    memory has to be all in memory 
+
+- XVIZMessage
+  # unpacks envelope and sets message type
+  ? should unenveloped be supported?
+    ? who should feed this a builder?
+    ? or a writer
+    ? or if it is unenveloped, should user know
+    type
+    data
+
+- finish server
+  - rename ServerMiddleware (vs ClientMiddleWare)
+  - option mapping?
+    - just do it manually, don't try to be fancy?
+  - scenario
+  - live
+  - loop
+  - document middleware
+
+  - xviz Message maker?
+  - flow type
+
+  - logging (see CLI?)
+  - timing (?)
+    process.hrtime()
+    performance.now() // limited for security
+
+- probably use kitti data as dataSource for server
+  - really need to have filters and reconfig as
+    lidar would _suck_ for RT conversion
+    ... could split into separate message?
+    ... interesting option.
+
+- connect conversion to server as dataSource
+- kitti as rosbag
+
+- how to make this all async?
+  [?] synchronous for now, async later?
+
+XVIZWriters and output names?
+- writers try to maintin convention
+  0-
+  1-
+  ... frames (need to know sequence/index)
+
+  but just converting 1 frame I don't really care 
+  

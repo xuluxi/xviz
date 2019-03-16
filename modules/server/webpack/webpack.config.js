@@ -12,9 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './modules/builder';
-import './modules/parser';
-import './modules/schema';
-import './modules/server';
-import './modules/cli';
-import './website';
+// Config for bundling workers
+const path = require('path');
+
+const BABEL_CONFIG = {
+  presets: [['@babel/env', {modules: 'commonjs'}]],
+  plugins: ['version-inline', '@babel/proposal-class-properties']
+};
+
+module.exports = {
+  mode: 'production',
+
+  devtool: false,
+
+  module: {
+    rules: [
+      {
+        // Compile ES2015 using bable
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: BABEL_CONFIG
+          }
+        ]
+      }
+    ]
+  }
+};

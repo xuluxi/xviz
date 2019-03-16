@@ -1,0 +1,27 @@
+dump
+log
+validate
+filter // mutate
+transform // output, live, loop, filter
+
+live // strip some data
+loop // change request data fetching & change data
+
+// cache is just a wrapped dataSource
+
+xvizframe, xvizdata, xvizobject, xvizmessage
+
+# client
+transform log flow 
+  sends transform_log after metadata
+
+onlyMetadata
+  closes after metadata
+
+
+DumpXVIZ
+  options mode, log | console.log
+  msg
+
+Object.freeze()
+
