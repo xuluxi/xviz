@@ -7,7 +7,6 @@ export class MemorySink {
   }
 
   writeSync(name, data) {
-    console.log('mem sync', name);
     this.data.set(name, data);
   }
 
@@ -16,7 +15,6 @@ export class MemorySink {
   }
 
   get(name) {
-    console.log('mem get', name);
     return this.data.get(name);
   }
 }

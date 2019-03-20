@@ -13,7 +13,8 @@
 // limitations under the License.
 
 /* eslint-disable camelcase */
-import {XVIZWriter} from '@xviz/builder';
+import {loadUri} from '@xviz/builder';
+import {FileSink, XVIZBinaryWriter} from '@xviz/io';
 
 import {KittiConverter} from './converters';
 
@@ -46,11 +47,12 @@ module.exports = async function main(args) {
   converter.initialize();
 
   // This abstracts the details of the filenames expected by our server
-  const xvizWriter = new XVIZWriter({binary: !writeJson, json: writeJson});
+  const sink = new FileSink(outputDir);
+  const xvizWriter = new XVIZBinaryWriter(sink);
 
   // Write metadata file
   const xvizMetadata = converter.getMetadata();
-  xvizWriter.writeMetadata(outputDir, xvizMetadata);
+  xvizWriter.writeMetadata(xvizMetadata);
 
   const start = Date.now();
 
@@ -67,10 +69,10 @@ module.exports = async function main(args) {
   // any unnecessary complications
   for (let i = 0; i < limit; i++) {
     const xvizFrame = await converter.convertFrame(i);
-    xvizWriter.writeFrame(outputDir, i, xvizFrame);
+    xvizWriter.writeFrame(i, xvizFrame);
   }
 
-  xvizWriter.writeFrameIndex(outputDir);
+  xvizWriter.writeFrameIndex();
 
   const end = Date.now();
   console.log(`Generate ${limit} frames in ${end - start}s`); // eslint-disable-line

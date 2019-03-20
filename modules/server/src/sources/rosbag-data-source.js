@@ -3,39 +3,18 @@ const path = require('path');
 
 import {XVIZData} from '@xviz/io';
 
-const FRAME_DATA_SUFFIX = '-frame.glb';
+const DATA_SUFFIX = '.bag';
 
-// Support various formatted frame names
-function getFrameName(index) {
-  if (index === 0) {
-    return `0-frame.json`;
-  }
-
-  return `${index}${FRAME_DATA_SUFFIX}`
-}
-
-function xvizPath(filepath, index) {
-  return path.join(filepath, getFrameName(index));
-}
-
-export function makeBinaryDataSource(root, filepath, params) {
+export function makeROSBAGDataSource(root, filepath, params) {
   // TODO: path may have a leading "/" beware of this
-  const rootpath = path.join(root, filepath);
-  console.log(`looking at ${xvizPath(rootpath, 1)}`);
+  const rootpath = path.join(root, filepath + DATA_SUFFIX);
+  console.log(`looking at ${rootpath}`);
 
-  if (fs.existsSync(xvizPath(rootpath, 1))) {
-    return new XVIZBinaryDataSource(rootpath);
+  if (fs.existsSync(rootpath))) {
+    return new XVIZROSBAGDataSource(rootpath);
   }
 
   return null;
-}
-
-function readJSON(filePath) {
-  if (fs.existsSync(filePath)) {
-    return JSON.parse(fs.readFileSync(filePath));
-  }
-
-  return undefined;
 }
 
 // return bytearray or undefined

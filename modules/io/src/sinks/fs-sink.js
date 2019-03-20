@@ -12,10 +12,10 @@ export class FileSink {
   }
 
   writeSync(name, data) {
-    const xvizMetadataFilename = this.path.join(this.root, scope, name);
+    const xvizFrame = this.path.join(this.root, name);
     const options = {
       flag: 'w'
     };
-    this.fs.writeFileSync(xvizMetadataFilename, data, options);
+    this.fs.writeFileSync(xvizFrame, data, options);
   }
 }

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-import {XVIZData} from './xviz-data';
+import {XVIZData} from '@xviz/io';
 
 const FRAME_DATA_SUFFIX = '-frame.json';
 
@@ -25,9 +25,17 @@ export function makeJSONDataSource(root, filepath, params) {
 }
 
 // return bytearray or undefined
-function readFile(filePath) {
+function readXVIZ(filePath) {
   if (fs.existsSync(filePath)) {
     return new XVIZData(fs.readFileSync(filePath));
+  }
+
+  return undefined;
+}
+
+function readJSON(filePath) {
+  if (fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath));
   }
 
   return undefined;
@@ -64,10 +72,20 @@ function loadFrameTimings(frames) {
 class XVIZJSONDataSource {
   constructor(filepath) {
 
-    console.log('~~json xviz source');
     this.root = filepath;
-    this.indexFile = readFile(xvizPath(this.root, 0));
-    this.metadata = readFile(xvizPath(this.root, 1));
+    // {
+    //  startTime
+    //  endTime
+    //  timing [
+    //    [first, end, index, "2-frame'],
+    //  ]
+    // }
+    this.indexFile = readJSON(xvizPath(this.root, 0));
+    this.metadata = readXVIZ(xvizPath(this.root, 1));
+
+    if (!this.indexFile.start_timestamp || !this.indexFile.end_timestamp) {
+      console.log('index file needs recreated');
+    }
   }
 
   // TODO: this is a custom object, may not be needed?
@@ -81,7 +99,42 @@ class XVIZJSONDataSource {
   }
 
   xvizFrameByIndex(index) {
-    return readFile(xvizPath(this.root, index));
+    return readXVIZ(xvizPath(this.root, index));
+  }
+
+  getFrameRange(startTime, endTime) {
+    let start = this.indexFile.start_timestamp;
+    let end = this.indexFile.end_timestamp;
+
+    // bounds check params
+    if (startTime) {
+      if (startTime >= start && startTime <= end) {
+        start = startTime;
+      }
+    }
+
+    if (endTime) {
+      if (endTime >= start && endTime <= end) {
+        end = endTime;
+      } else {
+        // todo: allow server duration limit
+        end = start + 30;
+      }
+    }
+    // todo: server limit on duration
+
+    // Find indices based on time
+    start = this.indexFile.timing.findIndex(timeEntry => start >= timeEntry[0]);
+    if (start === -1) {
+      start = 2;
+    }
+
+    end = this.indexFile.timing.findIndex(timeEntry => end >= timeEntry[1]);
+    if (end === -1) {
+      end = this.indexFile.timing.length;
+    }
+
+    return {start, end}
   }
 
   _createIndex() {
@@ -107,8 +160,5 @@ class XVIZJSONDataSource {
       endTime,
       timing
     };
-  }
-
-  _iterateFrames(cb) {
   }
 };

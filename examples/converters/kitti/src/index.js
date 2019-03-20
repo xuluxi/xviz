@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+/*
+const ALIASES = require('../../../../aliases');
+const moduleAlias = require('module-alias');
+moduleAlias.addAliases(ALIASES);
+*/
+
 require('@babel/register');
 require('babel-polyfill');
 

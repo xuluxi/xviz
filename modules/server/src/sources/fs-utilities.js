@@ -1,4 +1,5 @@
-const fs = require('fs');
+/*
+ * const fs = require('fs');
 const path = require('path');
 
 checkForFiles()
@@ -30,4 +31,4 @@ XVIZSource
   
 
   DataSource  
-    
+   */ 

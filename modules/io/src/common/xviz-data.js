@@ -1,6 +1,6 @@
 import {parseBinaryXVIZ, isBinaryXVIZ} from '@xviz/parser';
 import {XVIZMessage} from './xviz-message';
-import {TextDecoder} from '../common/text-encoding';
+import {TextDecoder} from './text-encoding';
 
 // expected return of null | binary | string | object
 function getDataFormat(data) {
@@ -76,10 +76,8 @@ export class XVIZData {
   message() {
     let msg = null
     if (!this._message) {
-      console.log('~~ Making XVIZMessage');
       switch (this._dataFormat) {
         case 'binary':
-          console.log(this._data);
           // TODO: handle buffer and arrayBuffer
           msg = parseBinaryXVIZ(this._data.buffer);
           break;

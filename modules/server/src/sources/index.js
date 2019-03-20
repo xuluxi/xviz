@@ -2,6 +2,8 @@ import {makeJSONDataSource} from './xviz-json-data-source';
 import {makeBinaryDataSource} from './xviz-binary-data-source';
 
 export class XVIZSourceFactory {
+  // TODO: should all of these be optional?
+  // i think so
   static open(root, path, params) {
     let source = makeJSONDataSource(root, path, params);
     if (!source) {

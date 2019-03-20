@@ -10,6 +10,9 @@ function getRequestData(requestUrl) {
   };
 }
 
+// TODO: add server options, pass thru to ws
+// allows client supplied server to be used instead
+// of default
 const DEFAULT_OPTIONS = {
   port: 3000,
   perMessageDeflate: true,
@@ -33,6 +36,10 @@ export class XVIZServer {
     return this._server;
   }
 
+  close(cb) {
+    this._server.close(cb);
+  }
+
   handleSession(socket, request) {
     console.log('~~ServerConnection made');
     const req = getRequestData(request.url);
@@ -45,6 +52,7 @@ export class XVIZServer {
       }
     }
 
+    // TODO: send XVIZ error and close connection
     console.log('~~ServerConnection has no valid session');
   }
 };

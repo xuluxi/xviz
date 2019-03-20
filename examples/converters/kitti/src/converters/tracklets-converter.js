@@ -44,6 +44,11 @@ export default class TrackletsConverter {
   }
 
   load() {
+    if (!fs.existsSync(this.trackletFile)) {
+      this.trackletFile = null;
+      return;
+    }
+
     const xml = fs.readFileSync(this.trackletFile, 'utf8');
     this.data = loadTracklets(xml);
 
@@ -73,6 +78,10 @@ export default class TrackletsConverter {
   }
 
   async convertFrame(frameNumber, xvizBuilder) {
+    if (!this.trackletFile) {
+      return;
+    }
+
     if (frameNumber < this.frameStart || frameNumber >= this.frameLimit) {
       return;
     }

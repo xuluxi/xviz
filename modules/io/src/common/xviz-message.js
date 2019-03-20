@@ -26,7 +26,6 @@ export class XVIZMessage {
     return this._message.type;
   }
   
-  // TODO: not sure about this
   get data() {
     return this._message.data;
   }
@@ -37,6 +36,7 @@ export class XVIZMessage {
     } else {
       // TODO: Should we ever support a missing envelope
       // Raw data, detect by parsing
+      console.log('~~message: no envelope');
       if (this.message.version) {
         this._message = {
           namespace: 'xviz',
@@ -47,6 +47,13 @@ export class XVIZMessage {
         this._message = {
           namespace: 'xviz',
           type: 'state_update',
+          data: this.message
+        };
+      } else {
+        console.log('Unknown Type');
+        this._message = {
+          namespace: null,
+          type: null,
           data: this.message
         };
       }

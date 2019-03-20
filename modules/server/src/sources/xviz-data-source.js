@@ -14,7 +14,7 @@ class XVIZDataSource {
   async xvizFrameByTimestamp(timestamp) {}
 };
 
-XVIZJSONDataSource
+// XVIZJSONDataSource
 // send as raw arraybuffer
 // send as JSON string w/ compression
 

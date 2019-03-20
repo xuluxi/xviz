@@ -16,7 +16,7 @@
 import test from 'tape-catch';
 import {toLowPrecision} from '@xviz/builder/utils';
 
-import {encodeBinaryXVIZ} from '@xviz/builder';
+import {encodeBinaryXVIZ} from '@xviz/io';
 import {parseBinaryXVIZ} from '@xviz/parser';
 
 const TEST_CASES = {

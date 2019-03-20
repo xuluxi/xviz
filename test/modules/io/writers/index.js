@@ -12,4 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './xviz-encode-parse.spec';
+import './xviz-writer.spec.js';
+import './xviz-encode-parse.spec.js';

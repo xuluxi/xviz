@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import {XVIZData} from '../sources/xviz-data';
+import {XVIZData} from '@xviz/io';
 
 /**
  * This takes a set of XVIZ middleware's and calls all there handlers
@@ -110,8 +110,8 @@ export class XVIZMiddlewareStack {
       if (handler) {
         let args = [];
 
+        // Support JS objects
         if (msg.data && !(msg.data  instanceof XVIZData)) {
-          console.log('~~~ making data an XVIZData');
           msg.data = new XVIZData(msg.data);
         }
         args = [request, msg];

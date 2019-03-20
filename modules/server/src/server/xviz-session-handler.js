@@ -1,6 +1,6 @@
 // TODO: move these to @xviz/reader
 import {isXVIZMessage} from '@xviz/parser';
-import {XVIZData} from '../sources/xviz-data';
+import {XVIZData} from '@xviz/io';
 
 import {XVIZRequestHandler} from '../middlewares/xviz-request-handler';
 import {XVIZWebsocketSender} from '../middlewares/xviz-websocket-sender';
@@ -36,6 +36,14 @@ export class XVIZSessionHandler {
     this.source = source;
     this.options = options;
 
+    // state for storage during session
+    // TODO: this needs defined for middleware
+    // start
+    // transformLog
+    // transformPointInTime
+    // reconfigure // represents changes to start
+    this.context = {};
+
     this.middleware = null;
 
     this._setupSocket();
@@ -65,8 +73,8 @@ export class XVIZSessionHandler {
     this.middleware = new XVIZMiddlewareStack();
 
     const stack = [
-      new XVIZRequestHandler(this.socket, this.source, this.middleware, this.options),
-      new XVIZWebsocketSender(this.socket, this.options)
+      new XVIZRequestHandler(this.context, this.socket, this.source, this.middleware, this.options),
+      new XVIZWebsocketSender(this.context, this.socket, this.options)
     ];
     this.middleware.set(stack);
   }
@@ -85,21 +93,32 @@ export class XVIZSessionHandler {
 
   onConnection() {
     console.log('~~Connection made', this.request);
+  
+    const params = this.request.params;
+    if (!params.version) {
+      // Assume default connection
+      params.version = '2.0';
+    }
 
-    this.callMiddleware('start');
+    this.callMiddleware('start', params);
     // if live, would send metadata & stream before
     // middleware, on live would send data 
     // send metadata
     // if live sendPlayResp
+    this.callMiddleware('transform_log', {id: 'live'});
   }
 
   onMessage(message) {
+    console.log('~~ onMessage');
     if (isXVIZMessage(message.data)) {
       // Since this is the server we assume the message
       // we get is simple and instantiate the message immediately
       // We also need to do this to get the "type()"
       const xvizData = new XVIZData(message.data);
-      console.log('~~ ', xvizData.dataFormat());
+      console.log('~~onmsg ', xvizData.dataFormat());
+
+      // TODO: I need to get the type w/o instantiating the message()
+      // need to add this to binary/glb parsing
       const xvizObj = xvizData.message();
       this.callMiddleware(xvizObj.type, xvizObj.data);
     } else {

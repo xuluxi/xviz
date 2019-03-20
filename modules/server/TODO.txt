@@ -1,3 +1,57 @@
+1. XVIZFormatter is only for meta & state_update
+ - does not work for other messages
+
+2. websocket must bet string buffer, arraybuffer, not Object
+
+so messy
+
+xvizdata deals with envelop & format
+xvizmessage strips envelope
+
+xvizWriters add envelope
+xvizWriters do not write other messages beyond metdata & state-update
+??? 
+
+[] add functions to create messages in @xviz/io
+  what does it reutrn XVIZData or XVIZMessage
+[] add writeMessage() to XVIZWriters which requires the envelope
+
+
+# XVIZ must have the envelope
+# 
+
+# parser xviz-loader is binary etc
+# isEnvelope, unpackEnvelope
+
+# move the code using this to using XVIZData/XVIZData
+XVIZData for a non-parsing flow
+XVIZData => XVIZMessage to get an object regardless
+  - glb, json, bundle?
+  ... message type, need to provide
+  ... accessors 
+  - message
+    - XVIZMeta, state, bundle
+
+
+# manual testing
+## server
+node src/main.js --port 3000 --d ../../data/generated/kitti/loaders.gl.2019.02.13.json --delay 100 --format binary 
+## client
+bin/babel-xviz dump ws://localhost:3000 --log foo  -c
+
+[?] plan for async after this release
+[?] XVIZMessage creator
+  writeStateUpdate  
+  writeMetadata
+  writeError
+
+  writeStart
+  writeReconfigure
+  writeTransformLog
+  writeTransformPointInTime
+
+
+
 async await issues
   - waiting when you don't need to
     - could use promise.all
