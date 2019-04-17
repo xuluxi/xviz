@@ -19,6 +19,9 @@ import {XVIZServer} from './server/server';
 import {XVIZSession} from './server/xviz-session';
 import {XVIZProviderFactory} from '@xviz/io';
 
+import {ROSBAGDataProvider} from '@xviz/ros';
+XVIZProviderFactory.addProviderClass(ROSBAGDataProvider);
+
 export function main() {
   // TODO: Need to collect argument handling across possible sources
   const args = setupArgs();

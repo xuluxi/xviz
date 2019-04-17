@@ -20,6 +20,9 @@
     "text-encoding": false
   },
   "dependencies": {
+    "@xviz/io": "^1.0.0-beta.1",
+    "@xviz/parser": "^1.0.0-beta.6",
+    "@xviz/ros": "^1.0.0-beta.1",
     "yargs": "^12.0.5",
     "ws": "^6.2.0",
     "text-encoding": "^0.6.4"

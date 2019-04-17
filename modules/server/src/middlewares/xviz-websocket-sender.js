@@ -20,7 +20,7 @@ export class WebsocketSink {
   }
 
   writeSync(name, data) {
-    let { compress = false } = this.options;
+    let {compress = false} = this.options;
     if (typeof data === 'string') {
       compress = true;
     }
@@ -34,7 +34,6 @@ export class WebsocketSink {
 //
 // Only stateUpdates are sent as binary, everything else
 // is assumed to just be JSON strings (generally short ones).
-//
 export class XVIZWebsocketSender {
   constructor(context, socket, options = {}) {
     this.context = context;
@@ -46,31 +45,31 @@ export class XVIZWebsocketSender {
     // - formatter
 
     this.options = options;
+    this.defaultFormat = options.socketFormatPreference || XVIZFormat.binary;
 
     // This is the actual format we use to send data and can change
     // based on the message.
     this.format = options.format;
 
     if (this.format === XVIZFormat.object) {
-      this.format = XVIZFormat.jsonString;
+      throw new Error(
+        `Cannot send XVIZ format ${
+          this.format
+        } through a websocket. The data must be a string or array.`
+      );
     }
 
     this.writer = null;
-    this._syncFormatWithWriter(this.format);
   }
 
   // Sets this.writer based on 'format'
-  // If format is not defined, but the xvizData.hasMessage(), meaning it may
-  // have been mutated, we must format to the fallbackFormat.
-  _syncFormatWithWriter(format, fallbackFormat) {
+  _syncFormatWithWriter(format) {
     // Cover the case where we have a format and no writer or when the
     // format does not match.
-    if (format && (!this.writer || this.format !== format)) {
+
+    if (!this.writer || this.format !== format) {
       this.writer = new XVIZFormatWriter(this.sink, {format});
       this.format = format;
-    } else if (fallbackFormat && this.format !== fallbackFormat) {
-      this.writer = new XVIZFormatWriter(this.sink, {format: fallbackFormat});
-      this.format = fallbackFormat;
     }
   }
 
@@ -79,7 +78,9 @@ export class XVIZWebsocketSender {
     const {format} = this.options;
     const sourceFormat = msg.data.dataFormat();
 
-    if (!format || sourceFormat === format) {
+    // If format is not set, we want to send as is if we can (no processing)
+    // but if it is an object, we must format it for sending over the socket
+    if ((!format || sourceFormat === format) && sourceFormat !== XVIZFormat.object) {
       // need to check if object() has been called (ie it might be dirty) and repack
       if (!msg.data.hasMessage()) {
         return true;
@@ -91,7 +92,7 @@ export class XVIZWebsocketSender {
 
   _getFormatOptions(msg) {
     // default should be pass-thru of original data
-    if (!this.options.format) {
+    if (!this.format) {
       // If no format is specified, we need to ensure we send a
       // string or arraybuffer through the websocket
 
@@ -102,14 +103,14 @@ export class XVIZWebsocketSender {
           typeof msg.data.buffer !== 'string' &&
           !msg.data.buffer.byteLength)
       ) {
-        return {...this.options, format: XVIZFormat.jsonString};
+        return {...this.options, format: this.defaultFormat};
       }
 
       // return the format set to the current data format
       return {...this.options, format: msg.data.dataFormat()};
     }
 
-    return this.options;
+    return {format: this.format};
   }
 
   onError(req, msg) {
@@ -125,7 +126,7 @@ export class XVIZWebsocketSender {
     if (this._sendDataDirect(msg)) {
       this.sink.writeSync(`1-frame`, msg.data.buffer);
     } else {
-      this._syncFormatWithWriter(format, msg.data.dataFormat());
+      this._syncFormatWithWriter(format);
       this.writer.writeMetadata(msg.data);
     }
   }
@@ -136,7 +137,7 @@ export class XVIZWebsocketSender {
     if (this._sendDataDirect(msg)) {
       this.sink.writeSync('2-frame', msg.data.buffer);
     } else {
-      this._syncFormatWithWriter(format, msg.data.dataFormat());
+      this._syncFormatWithWriter(format);
       this.writer.writeFrame(0, msg.data);
     }
   }
