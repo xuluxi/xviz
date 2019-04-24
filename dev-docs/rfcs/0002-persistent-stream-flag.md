@@ -77,14 +77,14 @@ required.
 # Out of scope
 
 - LOD considerations
-- Dynamic data management across front end and backend
+- Dynamic data management across frontend and backend
 
 # Alternatives
 
 The persistent flag is believe to be the simplest addition to enable session long data. Below are
 other options that have been considered and why they where not part of the proposal at this time.
 
-# retention property
+## Retention property
 
 The stream metadata will define a `retention` property for a stream, which can be used to override
 the application setting of TIME_WINDOW to instruct the application how long a given stream should be
@@ -94,7 +94,7 @@ I believe retention is inadequate for a persistence property for the following r
 
 ## Another time encoding
 
-retention encodes visibile time per datum which can be seen as a per-stream replacement for
+Retention encodes visibile time per datum which can be seen as a per-stream replacement for
 TIME_WINDOW at the XVIZ layer rather than the application layer. I could see retention **replacing**
 TIME_WINDOW possibly, but could still see the need for a persistent flag. This implies a semantic
 difference between the two. A sentinal value could "imply" persistence but that leads to the next
@@ -109,7 +109,7 @@ The retention which here was considered for the visible duration, would need to 
 cover how it would interact with any data management. This to me signals that we are capturing
 something unique in persistence that deserves a semantically different property.
 
-# persistent update type
+## Persistent update type
 
 A new update type that treated all data within the update as persistent could achieve the same
 result. However it becomes a requirement then to define the semantics of persistent update data with
