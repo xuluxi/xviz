@@ -15,3 +15,4 @@
 import './xviz-writer.spec.js';
 import './xviz-encode-parse.spec.js';
 import './xviz-format-writer.spec.js';
+import './xviz-writer-points.spec.js';
