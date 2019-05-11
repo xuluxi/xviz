@@ -146,7 +146,14 @@ created.
 
 **map_info** - currently unspecified
 
-**log_info** - currently unspecified
+**log_info** - timing information
+
+| Name             | Type                  | Description                                 |
+| ---------------- | --------------------- | ------------------------------------------- |
+| `start_time`     | `optional<timestamp>` | Starting timestamp for the log              |
+| `end_time`       | `optional<timestamp>` | Final timestamp for the log                 |
+| `log_start_time` | `optional<timestamp>` | Starting timestamp from the original source |
+| `log_end_time`   | `optional<timestamp>` | Final timestamp from the original source    |
 
 **vehicle_info** - currently unspecified
 
