@@ -13,19 +13,21 @@
 // limitations under the License.
 
 import '@loaders.gl/polyfills';
-import {GLTFBuilder} from '@loaders.gl/gltf';
+import {GLTFScenegraph, GLTFWriter} from '@loaders.gl/gltf';
 import {packBinaryJson} from './xviz-pack-binary';
 
 export function encodeBinaryXVIZ(xvizJson, options) {
-  const gltfBuilder = new GLTFBuilder(options);
+  const gltfBuilder = new GLTFScenegraph();
 
   // Pack appropriate large data elements (point clouds and images) in binary
   const packedData = packBinaryJson(xvizJson, gltfBuilder, null, options);
 
+  console.log('~~packed json');
+  console.log(JSON.stringify(packedData, null, 2));
   // As permitted by glTF, we put all XVIZ data in a top-level subfield.
   gltfBuilder.addApplicationData('xviz', packedData, {nopack: true});
 
-  return gltfBuilder.encodeAsGLB(options);
+  return GLTFWriter.encodeSync(gltfBuilder.gltf);
 }
 
 export function writeBinaryXVIZtoFile(sink, directory, name, json, options) {

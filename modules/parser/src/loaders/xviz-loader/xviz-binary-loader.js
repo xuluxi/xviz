@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GLTFParser} from '@loaders.gl/gltf';
+import {GLTFLoader, GLTFScenegraph, postProcessGLTF} from '@loaders.gl/gltf';
 
 const MAGIC_XVIZ = 0x5856495a; // XVIZ in Big-Endian ASCII
 const MAGIC_GLTF = 0x676c5446; // glTF in Big-Endian ASCII
@@ -22,11 +22,17 @@ const GLB_FILE_HEADER_SIZE = 12;
 const GLB_CHUNK_HEADER_SIZE = 8;
 
 export function parseBinaryXVIZ(arrayBuffer) {
-  const gltfParser = new GLTFParser();
-  gltfParser.parse(arrayBuffer, {createImages: false});
+  const data = GLTFLoader.parseSync(arrayBuffer, {useGLTFParser: false, createImages: false});
+  const gltf = new GLTFScenegraph(data);
 
-  // TODO/ib - Fix when loaders.gl API is fixed
-  return gltfParser.getApplicationData('xviz');
+  console.log(JSON.stringify(gltf, null, 2));
+  const unpackedGLTF = postProcessGLTF(gltf);
+  console.log(JSON.stringify(unpackedGLTF, null, 2));
+  if (unpackedGLTF && unpackedGLTF.xviz) {
+    return unpackedGLTF.xviz;
+  }
+
+  return null;
 }
 
 export function isBinaryXVIZ(arrayBuffer) {
