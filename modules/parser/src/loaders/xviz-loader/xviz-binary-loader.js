@@ -20,13 +20,20 @@ const LE = true; // Binary GLTF is little endian.
 const BE = false; // Magic needs to be written as BE
 const GLB_FILE_HEADER_SIZE = 12;
 const GLB_CHUNK_HEADER_SIZE = 8;
+const XVIZ_GLTF_EXTENSION = 'AVS_xviz';
 
 export function parseBinaryXVIZ(arrayBuffer) {
   const gltfParser = new GLTFParser();
   gltfParser.parse(arrayBuffer, {createImages: false});
 
   // TODO/ib - Fix when loaders.gl API is fixed
-  return gltfParser.getApplicationData('xviz');
+  let xviz = gltfParser.getApplicationData('xviz');
+
+  if (xviz === undefined) {
+    xviz = gltfParser.getExtension(XVIZ_GLTF_EXTENSION);
+  }
+
+  return xviz;
 }
 
 export function isBinaryXVIZ(arrayBuffer) {
